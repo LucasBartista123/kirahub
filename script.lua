@@ -529,22 +529,35 @@ end
 
 local KiraRayfield
 do
+	warn("[Kira] loading Rayfield...")
 	local srcs = {
 		"https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua",
 		"https://sirius.menu/rayfield"
 	}
 	for _, u in ipairs(srcs) do
-		local ok, body = pcall(function() return game:HttpGet(u) end)
+		warn("[Kira] try:", u)
+		local ok, body = pcall(game.HttpGet, game, u)
+		warn("[Kira] fetch:", ok, type(body), ok and type(body) == "string" and #body or "n/a")
 		if ok and type(body) == "string" and #body > 1000 then
-			local ok2, lib = pcall(function() return loadstring(body)() end)
-			if ok2 and type(lib) == "table" then
-				KiraRayfield = lib
+			local ok2, libOrErr = pcall(function()
+				local fn = loadstring(body)
+				if not fn then return nil, "loadstring nil" end
+				local ok3, lib = pcall(fn)
+				if ok3 then return lib end
+				return nil, lib
+			end)
+			warn("[Kira] exec:", ok2, type(libOrErr))
+			if ok2 and type(libOrErr) == "table" then
+				KiraRayfield = libOrErr
 				break
+			elseif not ok2 then
+				warn("[Kira] loadstring/err:", libOrErr)
 			end
 		end
 	end
 end
-if not KiraRayfield then warn("[Kira] Rayfield failed to load") return end
+if not KiraRayfield then warn("[Kira] Rayfield FAILED to load") return end
+warn("[Kira] Rayfield loaded OK")
 LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
 	pcall(function()
@@ -901,6 +914,7 @@ do
 
 	local function RF_Win()
 		if KiraWin then return KiraWin end
+		warn("[Kira] creating window...")
 		KiraWin = KiraRayfield:CreateWindow({
 			Name = "Kira Hub | Steal an Egg",
 			LoadingTitle = "Kira Hub",
@@ -934,6 +948,7 @@ do
 			-- last-resort: v113.Visible true (the ScreenGui we made)
 			v113.Visible = true
 		end)
+		warn("[Kira] window created:", KiraWin ~= nil)
 		return KiraWin
 	end
 
@@ -941,7 +956,9 @@ do
 	local function laterTab(tab)
 		tab = tab or {}
 		if tab.rf then return tab.rf end
-		RF_Win()
+		warn("[Kira] calling RF_Win")
+	RF_Win()
+	warn("[Kira] RF_Win returned")
 		return tab.rf
 	end
 
