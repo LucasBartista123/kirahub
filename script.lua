@@ -1,5 +1,6 @@
-if not game:IsLoaded() then
-    game.Loaded:Wait()
+local _isLoadedOk, _isLoaded = pcall(function() return game:IsLoaded() end)
+if not _isLoadedOk or not _isLoaded then
+    pcall(function() game.Loaded:Wait() end)
 end
 do
     local str
