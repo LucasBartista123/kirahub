@@ -131,6 +131,42 @@ do
         task.wait(0.1)
     end
 end
+-- ============================================
+-- Kira Hub | Steal an Egg — Rayfield port
+-- On-screen notifications are the primary status channel (mobile-safe)
+-- ============================================
+
+local function KiraMsg(tag, txt)
+	pcall(function()
+		game:GetService("StarterGui"):SetCore("SendNotification", {
+			Title = "Kira Hub",
+			Text = tostring(tag) .. ": " .. tostring(txt),
+			Duration = 6
+		})
+	end)
+	pcall(function() print("[Kira]", tag, txt) end)
+end
+
+KiraMsg("boot", "script started")
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+	local ok = pcall(function()
+		Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+	end)
+	LocalPlayer = Players.LocalPlayer
+end
+if not LocalPlayer then
+	KiraMsg("FATAL", "no LocalPlayer")
+	return
+end
+
+KiraMsg("boot", "got LocalPlayer: " .. tostring(LocalPlayer.Name))
+
 local t1 = {
 	Title = "Kira Hub",
 	Version = "0.1",
@@ -147,504 +183,75 @@ local t1 = {
 	Credits = "Thanks to all my dicord members",
 	Support = "Thank You for your support !"
 }
+
 local function v26(p1)
-    local v328 = tostring(p1 or "Game"):gsub("[<>:\"/\\|?*]", "_"):gsub("%s+", "_"):gsub("_+", "_"):match("^%s*(.-)%s*$")
-
-    if not v328 or v328 == "" or v328 == "_" then
-        v328 = "Game"
-    end
-
-    return v328
+	local s = tostring(p1 or "Game"):gsub('[<>:\"/\\|?*]', "_"):gsub("%s+", "_"):gsub("_+", "_"):match("^%s*(.-)%s*$")
+	if not s or s == "" or s == "_" then s = "Game" end
+	return s
 end
-t1.LogoFile = "Kira" .. "/logo.png"
-t1.LogoFileLight = "Kira" .. "/logo-light.png"
-local n1 = 620
-local n2 = 430
-local n3 = 152
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local HttpService, Stats, ProximityPromptService, ReplicatedStorage, LocalPlayer, v40, v41, u42, u43, u44, str, v48, v49, v50, v51, t2
-local t3, t4, t5, t6, t7, t9, t10, t11, t12, u66, u67, u68, u69, u70, u71, t14
-local v73, u75, u76, v79, self, v82, v83, v84, v85, v87, v98, v103, v108, v113, v151, v194
-local v199, v217, v228, v229, v245, v250, v259, v261, v262, v263, u265, u266, v268, v270, v272, v274
-local v277, v278, v279, v280, v281, v282, u284, v287, v288, v289, v290, v291, v292, v293
-do
-    local t8, t13, v81, v86
-
-    do
-        local t26, v94
-
-        do
-            local TweenService = game:GetService("TweenService")
-
-            HttpService = game:GetService("HttpService")
-            Stats = game:GetService("Stats")
-            ProximityPromptService = game:GetService("ProximityPromptService")
-            ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-            local GuiService = game:GetService("GuiService")
-
-            LocalPlayer = Players.LocalPlayer
-
-            if not LocalPlayer then
-                pcall(function()
-                    Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-                end)
-                LocalPlayer = Players.LocalPlayer
-            end
-
-            function v40()
-                if UserInputService.VREnabled then
-                    return false
-                end
-                local u338 = false
-                pcall(function()
-                    u338 = GuiService:IsTenFootInterface()
-                end)
-                if u338 then
-                    return false
-                end
-                if UserInputService.TouchEnabled then
-                    return true
-                end
-                if UserInputService.MouseEnabled == false then
-                    return true
-                end
-                local u339 = false
-                local u340 = false
-                pcall(function()
-                    u339 = UserInputService.GyroscopeEnabled == true
-                end)
-                pcall(function()
-                    u340 = UserInputService.AccelerometerEnabled == true
-                end)
-                if u339 or u340 then
-                    return true
-                end
-                local PreferredInput
-                local LastInputType
-                pcall(function()
-                    PreferredInput = UserInputService.PreferredInput
-                end)
-                pcall(function()
-                    LastInputType = UserInputService:GetLastInputType()
-                end)
-                if PreferredInput == Enum.PreferredInput.Touch or LastInputType == Enum.UserInputType.Touch then
-                    return true
-                end
-                local v343 = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
-                if v343 and (v343:FindFirstChild("TouchGui", true) or v343:FindFirstChild("TouchControlFrame", true) or v343:FindFirstChild("JumpButton", true) or v343:FindFirstChild("DynamicThumbstickFrame", true)) then
-                    return true
-                end
-
-                return false
-            end
-            function v41()
-                local CurrentCamera = workspace.CurrentCamera
-                local v345 = if not CurrentCamera then Vector2.new(1280, 720) else CurrentCamera.ViewportSize
-                local v346 = math.floor(math.clamp(v345.X * 0.7, 440, 560))
-                local v347 = math.floor(math.clamp(v345.Y * 0.74, 340, 410))
-
-                if v345.X > 80 then
-                    v346 = math.min(v346, v345.X - 36)
-                end
-
-                if v345.Y > 80 then
-                    v347 = math.min(v347, v345.Y - 36)
-                end
-
-                return math.max(400, v346), math.max(320, v347)
-            end
-
-            u42 = v40()
-            u43 = false
-            u44 = nil
-
-            if u42 then
-                local v45, v46 = v41()
-
-                n1 = v45
-                n2 = v46
-                n3 = 128
-            end
-
-            str = tostring(LocalPlayer and LocalPlayer.UserId or 0)
-            v48 = "PH_UI_" .. str
-            v49 = "KiraWorldGui_" .. str
-
-            function v50()
-                return getgenv and getgenv() or _G
-            end
-            function v51()
-                local v350 = getgenv and getgenv() or _G
-                local KiraHub = v350.KiraHub
-
-                if type(KiraHub) ~= "table" then
-                    KiraHub = {
-						slots = {}
-					}
-                    v350.KiraHub = KiraHub
-                end
-
-                if type(KiraHub.slots) ~= "table" then
-                    KiraHub.slots = {}
-                end
-
-                local v352 = KiraHub.slots[str]
-
-                if type(v352) ~= "table" then
-                    v352 = {}
-                    KiraHub.slots[str] = v352
-                end
-
-                return v352
-            end
-
-            t1.ConfigFile = (("Kira" .. "/" .. v26(t1.Game)) .. "/cache") .. "/" .. v26(LocalPlayer and LocalPlayer.Name or "Player") .. "-config.json"
-            t2 = {
-				Dark = {
-					bg = Color3.fromRGB(12, 11, 10),
-					rail = Color3.fromRGB(16, 15, 14),
-					card = Color3.fromRGB(32, 30, 27),
-					lift = Color3.fromRGB(42, 39, 35),
-					fill = Color3.fromRGB(48, 44, 39),
-					line = Color3.fromRGB(58, 53, 46),
-					text = Color3.fromRGB(246, 242, 234),
-					dim = Color3.fromRGB(168, 158, 144),
-					mute = Color3.fromRGB(110, 102, 92),
-					accent = Color3.fromRGB(214, 168, 108),
-					accentDeep = Color3.fromRGB(92, 68, 36),
-					accentHover = Color3.fromRGB(228, 186, 128),
-					ink = Color3.fromRGB(22, 18, 14),
-					ok = Color3.fromRGB(138, 166, 128),
-					Kira = Color3.fromRGB(246, 242, 234)
-				},
-				Light = {
-					bg = Color3.fromRGB(232, 226, 218),
-					rail = Color3.fromRGB(232, 226, 218),
-					card = Color3.fromRGB(252, 250, 246),
-					lift = Color3.fromRGB(242, 236, 228),
-					fill = Color3.fromRGB(224, 218, 208),
-					line = Color3.fromRGB(204, 196, 184),
-					text = Color3.fromRGB(28, 24, 20),
-					dim = Color3.fromRGB(92, 84, 74),
-					mute = Color3.fromRGB(128, 120, 108),
-					accent = Color3.fromRGB(168, 114, 56),
-					accentDeep = Color3.fromRGB(120, 80, 38),
-					accentHover = Color3.fromRGB(186, 132, 70),
-					ink = Color3.fromRGB(252, 250, 246),
-					ok = Color3.fromRGB(64, 118, 82),
-					Kira = Color3.fromRGB(28, 24, 20)
-				}
-			}
-            t3 = {}
-
-            for k, v in pairs(t2.Dark) do
-                t3[k] = v
-            end
-
-            t4 = {
-				title = Enum.Font.BuilderSansBold,
-				mid = Enum.Font.BuilderSansMedium,
-				body = Enum.Font.BuilderSans,
-				mono = Enum.Font.RobotoMono
-			}
-            t5 = {
-				"Forest",
-				"Desert",
-				"Lake",
-				"Jungle",
-				"Snow",
-				"Volcano",
-				"Prehistoric",
-				"Cosmic",
-				"Abyss Ocean",
-				"Cherry Blossom"
-			}
-            t6 = {
-				"Common",
-				"Uncommon",
-				"Rare",
-				"Epic",
-				"Legendary",
-				"Mythic",
-				"Cosmic",
-				"Secret",
-				"Eternal",
-				"Divine",
-				"Titan"
-			}
-            t7 = {
-				"Golden",
-				"Rainbow",
-				"Galaxy",
-				"Crystal",
-				"Bloom"
-			}
-            t8 = {
-				About = "info",
-				["Auto Steal"] = "egg",
-				Plot = "grid",
-				Serverhop = "rocket",
-				Misc = "layers",
-				Webhook = "out",
-				Settings = "cog"
-			}
-            t9 = {}
-            t10 = {}
-            t11 = {}
-            t12 = {}
-            t13 = {}
-            u66 = nil
-            u67 = nil
-            u68 = nil
-            u69 = nil
-            u70 = nil
-            u71 = nil
-            t14 = {}
-
-            function v73(p2)
-                if p2 then
-                    t14[#t14 + 1] = p2
-                end
-
-                return p2
-            end
-
-            local t15 = {}
-
-            u75 = nil
-            u76 = nil
-
-            local function v77(p3)
-                if type(p3) ~= "string" or p3 == "" then
-                    return
-                end
-
-                local t16 = {}
-
-                if crypt then
-                    t16[#t16 + 1] = crypt.base64decode
-                    t16[#t16 + 1] = crypt.base64_decode
-                end
-
-                if syn and syn.crypt and syn.crypt.base64 and syn.crypt.base64.decode then
-                    t16[#t16 + 1] = syn.crypt.base64.decode
-                end
-
-                if base64 and base64.decode then
-                    t16[#t16 + 1] = base64.decode
-                end
-
-                if base64_decode then
-                    t16[#t16 + 1] = base64_decode
-                end
-
-                for i = 1, #t16 do
-                    local ok, result = pcall(t16[i], p3)
-
-                    if ok and type(result) == "string" and #result > 64 then
-                        return result
-                    end
-                end
-            end
-            local function v78(p4)
-                if p4 then
-                    if u76 then
-                        return u76
-                    end
-                elseif u75 then
-                    return u75
-                end
-
-                local v367 = v77(not p4 and "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")
-
-                if not v367 then
-                    return
-                end
-
-                local v368 = p4 and t1.LogoFileLight or t1.LogoFile
-
-                if type(makefolder) == "function" then
-                    pcall(makefolder, "Kira")
-                end
-
-                if writefile then
-                    pcall(writefile, v368, v367)
-                end
-
-                if getcustomasset then
-                    local ok, result = pcall(getcustomasset, v368)
-
-                    if ok and type(result) == "string" and result ~= "" then
-                        if p4 then
-                            u76 = result
-
-                            return result
-                        end
-
-                        u75 = result
-
-                        return result
-                    end
-                end
-            end
-
-            function v79()
-                local v371 = v78(t9.Theme == "Light")
-
-                if not v371 then
-                    return
-                end
-
-
--- ============================================
--- Kira -> Rayfield shim (UI layer only)
--- logic below 5950 left untouched
--- ============================================
--- visible error reporter so mobile users see what's failing
-local function KiraError(tag, msg)
-	pcall(function()
-		game:GetService("StarterGui"):SetCore("SendNotification", {
-			Title = "Kira Hub",
-			Text = tostring(tag) .. ": " .. tostring(msg),
-			Duration = 8
-		})
-	end)
-	warn("[Kira]", tag, msg)
-end
-
-do
-
 
 local function v50()
 	return getgenv and getgenv() or _G
 end
+local str = tostring(LocalPlayer and LocalPlayer.UserId or 0)
 local function v51()
-	local v350 = getgenv and getgenv() or _G
-	local KiraHub = v350.KiraHub
+	local env = v50()
+	local KiraHub = env.KiraHub
 	if type(KiraHub) ~= "table" then
 		KiraHub = { slots = {} }
-		v350.KiraHub = KiraHub
+		env.KiraHub = KiraHub
 	end
-	if type(KiraHub.slots) ~= "table" then
-		KiraHub.slots = {}
+	if type(KiraHub.slots) ~= "table" then KiraHub.slots = {} end
+	local slot = KiraHub.slots[str]
+	if type(slot) ~= "table" then
+		slot = {}
+		KiraHub.slots[str] = slot
 	end
-	local v352 = KiraHub.slots[str]
-	if type(v352) ~= "table" then
-		v352 = {}
-		KiraHub.slots[str] = v352
-	end
-	return v352
+	return slot
 end
 
+--[[ Load Rayfield ]]
+KiraMsg("boot", "loading Rayfield...")
 local KiraRayfield
-do
-	KiraError("boot", "loading Rayfield...")
-	local srcs = {
-		"https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua",
-		"https://sirius.menu/rayfield"
-	}
-	for _, u in ipairs(srcs) do
-		KiraError("fetch-try", u)
-		local ok, body = pcall(game.HttpGet, game, u)
-		KiraError("fetch", tostring(ok) .. " " .. type(body) .. " " .. tostring(ok and type(body)=="string" and #body or "n/a"))
-		if ok and type(body) == "string" and #body > 1000 then
-			local ok2, libOrErr = pcall(function()
-				local fn = loadstring(body)
-				if not fn then return nil, "loadstring nil" end
-				local ok3, lib = pcall(fn)
-				if ok3 then return lib end
-				return nil, lib
-			end)
-			KiraError("exec", tostring(ok2) .. " " .. type(libOrErr))
-			if ok2 and type(libOrErr) == "table" then
-				KiraRayfield = libOrErr
-				break
-			elseif not ok2 then
-				KiraError("loadstr-err", tostring(libOrErr))
-			end
-		end
-	end
-end
-if not KiraRayfield then KiraError("FATAL", "Rayfield failed to load") return end
-KiraError("boot", "Rayfield loaded OK")
-LocalPlayer = Players.LocalPlayer
-if not LocalPlayer then
-	pcall(function()
-		Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-	end)
-	LocalPlayer = Players.LocalPlayer
-end
-local u42 = false
-do
-	local u338 = false
-	pcall(function() u338 = game:GetService("GuiService"):IsTenFootInterface() end)
-	if not u338 then
-		if UserInputService.TouchEnabled and (not UserInputService.MouseEnabled) then
-			u42 = true
+local sources = {
+	"https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua",
+	"https://sirius.menu/rayfield"
+}
+for _, u in ipairs(sources) do
+	local ok, body = pcall(game.HttpGet, game, u)
+	if ok and type(body) == "string" and #body > 1000 then
+		local ok2, lib = pcall(function()
+			local fn = loadstring(body)
+			if not fn then error("loadstring nil") end
+			return fn()
+		end)
+		if ok2 and type(lib) == "table" then
+			KiraRayfield = lib
+			KiraMsg("boot", "Rayfield OK from " .. u:sub(1, 40))
+			break
 		else
-			local lt
-			pcall(function() lt = UserInputService:GetLastInputType() end)
-			if lt == Enum.UserInputType.Touch then u42 = true end
+			KiraMsg("boot", "exec failed: " .. tostring(lib):sub(1, 60))
 		end
+	else
+		KiraMsg("boot", "fetch failed: " .. u:sub(1, 40))
 	end
 end
-HttpService = game:GetService("HttpService")
-str = str or tostring(LocalPlayer and LocalPlayer.UserId or 0)
+if not KiraRayfield then
+	KiraMsg("FATAL", "Rayfield failed — check internet")
+	return
+end
 
-local v98 = Instance.new("ScreenGui")
-v98.Name = "KiraWorldGui_" .. str
-v98.ResetOnSpawn = false
-v98.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-v98.DisplayOrder = 50
-if gethui then
-	pcall(function() v98.Parent = gethui() end)
-end
-if not v98.Parent and syn and syn.protect_gui then
-	pcall(syn.protect_gui, v98)
-	pcall(function() v98.Parent = game:GetService("CoreGui") end)
-end
-if not v98.Parent then
-	pcall(function()
-		v98.Parent = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui")
-	end)
-end
-if not v98.Parent then
-	pcall(function() v98.Parent = game:GetService("CoreGui") end)
-end
-local v108 = Instance.new("UIScale")
-v108.Scale = 1
-local v113 = v98 -- ScreenGui root: position/size live on Rayfield window, not on us
-local v250 = { Text = "" }
-
+--[[ State tables the logic tail depends on ]]
 local t9 = {}
 local t10 = {}
 local t11 = {}
 local t12 = {}
 local t14 = {}
-local u44 = nil
-local u66, u67, u68, u69, u70, u71
-local u284 = function() end
+local u42 = UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+local u44 = function() end
+local u66 = nil
 local u265, u266 = false, false
 local v268 = v51().gen or 1
-
-local function v26b(p2)
-	if p2 then
-		t14[#t14 + 1] = p2
-	end
-	return p2
-end
-v73 = v26b
-
-local v78 = function() end
-local function v274(p63, p64) end
-local function v272(p60) end
-local function v277() end
-local function v278(p68) end
-local function v279(p69, p70) end
-local function v280(p71) end
 
 local t81 = {
 	ImportPaste = true,
@@ -655,333 +262,33 @@ local t81 = {
 }
 
 local function v269(...)
-	warn("[Kira/cfg]", ...)
+	pcall(function() print("[Kira/cfg]", ...) end)
 end
+
+--[[ Dummy v98/v108/v113 for stats panel & window logic ]]
+local v98 = Instance.new("ScreenGui")
+v98.Name = "KiraWorldGui_" .. str
+v98.ResetOnSpawn = false
+v98.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+v98.DisplayOrder = 50
+if gethui then pcall(function() v98.Parent = gethui() end) end
+if not v98.Parent and syn and syn.protect_gui then
+	pcall(syn.protect_gui, v98)
+	pcall(function() v98.Parent = game:GetService("CoreGui") end)
+end
+if not v98.Parent then
+	pcall(function() v98.Parent = LocalPlayer:WaitForChild("PlayerGui") end)
+end
+
+local v108 = Instance.new("UIScale")
+v108.Scale = 1
+local v113 = v98
+local v250 = { Text = "" }
 
 local KiraWin
 
-local function v291(pA)
-	return type(pA) == "string" and pA:match("%S") ~= nil
-end
-local function v292()
-	local d = t1.Discord or ""
-	if d:find("discord%.", 1) or d:find("http", 1, true) then
-		return d
-	end
-	return "discord.gg/" .. d
-end
-
-local u323
-do
-	local destroyed = false
-	local dt2 = {}
-	local function newstatus()
-		return { Text = "", Parent = true, Visible = true }
-	end
-	local function mk(kind, key, opts)
-		opts = opts or {}
-		local w = { kind = kind, key = key }
-		w.set = function(x)
-			t9[key] = x
-			pcall(function()
-				if opts.kind == "cfgpreset" then
-					return
-				end
-				if w.on and not (kind == "dropdown" and opts.multi) then
-					w.on(x)
-				end
-			end)
-		end
-		w.refresh = function() end
-		w.box = { Text = "" }
-		w.status = newstatus()
-		w.on = nil
-		t10[key] = w
-		return w
-	end
-	local function toggleMaker(key, current)
-		return {
-			Title = key,
-			CurrentValue = current and true or false,
-			Flag = key,
-			Callback = function(v)
-				t9[key] = v
-				local w = t10[key]
-				if w and w.on then pcall(w.on, v) end
-				pcall(v272)
-			end
-		}
-	end
-	local function addToggle(tab, key, title, desc, default, extra)
-		t9[key] = default and true or false
-		local w = mk("toggle", key)
-		pcall(function()
-			tab.rf:CreateToggle({
-				Name = title or key,
-				CurrentValue = default and true or false,
-				Flag = key,
-				Callback = function(v)
-					t9[key] = v
-					if w.on then pcall(w.on, v) end
-					pcall(v272)
-				end
-			})
-		end)
-		return w
-	end
-	local function addSlider(tab, key, title, desc, min, max, cur, suffix)
-		t9[key] = cur
-		local w = mk("slider", key)
-		pcall(function()
-			tab.rf:CreateSlider({
-				Name = title or key,
-				Range = {min, max},
-				Increment = 1,
-				Suffix = suffix or "",
-				CurrentValue = cur,
-				Flag = key,
-				Callback = function(v)
-					t9[key] = v
-					if w.on then pcall(w.on, v) end
-					pcall(v272)
-				end
-			})
-		end)
-		return w
-	end
-	local function addInput(tab, key, title, desc, placeholder, cur)
-		t9[key] = cur or ""
-		local w = mk("input", key)
-		pcall(function()
-			tab.rf:CreateInput({
-				Name = title or key,
-				PlaceholderText = placeholder or "",
-				RemoveTextAfterFocusLost = false,
-				Flag = key,
-				Callback = function(t)
-					t9[key] = t
-					w.box.Text = t
-					if w.on then pcall(w.on, t) end
-					pcall(v272)
-				end
-			})
-		end)
-		return w
-	end
-	local function addDropdown(tab, key, title, desc, options, cur, multi)
-		if multi then
-			t9[key] = cur or { unpack(options) }
-		else
-			t9[key] = cur or options[1]
-		end
-		local w = mk("dropdown", key)
-		w.options = options
-		pcall(function()
-			tab.rf:CreateDropdown({
-				Name = title or key,
-				Options = options,
-				CurrentOption = multi and (cur or options) or (cur or options[1]),
-				MultipleOptions = multi and true or false,
-				Flag = key,
-				Callback = function(v)
-					t9[key] = v
-					if w.on then pcall(w.on, v) end
-					pcall(v272)
-				end
-			})
-		end)
-		return w
-	end
-	local function addButton(tab, key, title, desc, btn, fn, instant)
-		local w = mk("button", key)
-		w.on = fn
-		pcall(function()
-			tab.rf:CreateButton({
-				Name = title or key,
-				Callback = function()
-					if fn then pcall(fn) end
-				end
-			})
-		end)
-		return w
-	end
-	local function addKeybind(tab, key, title, desc, cur)
-		t9[key] = cur
-		local w = mk("keybind", key)
-		pcall(function()
-			tab.rf:CreateKeybind({
-				Name = title or key,
-				CurrentKeybind = cur and cur.Name or "RightShift",
-				HoldToInteract = false,
-				Flag = key,
-				Callback = function(k)
-					t9[key] = typeof(k) == "EnumItem" and k or (Enum.KeyCode[k] or cur)
-					if w.on then pcall(w.on, t9[key]) end
-					pcall(v272)
-				end
-			})
-		end)
-		return w
-	end
-	local function addLabel(tab, k, v)
-		pcall(function()
-			tab.rf:CreateParagraph({ Title = k, Content = tostring(v or "") })
-		end)
-	end
-	local function addSection(tab, s)
-		pcall(function()
-			tab.rf:CreateSection(s)
-		end)
-	end
-
-
-	KiraWin = KiraRayfield:CreateWindow({
-		Name = "Kira Hub | Steal an Egg",
-		LoadingTitle = "Kira Hub",
-		LoadingSubtitle = "by @kira_scripts.gg",
-		ConfigurationSaving = {
-			Enabled = true,
-			FolderName = "Kira/Steal an Egg",
-			FileName = "KiraConfig"
-		},
-		Discord = {
-			Enabled = true,
-			Invite = "discord.gg/ZNwS8csX3j",
-			RememberJoins = false
-		},
-		KeySystem = false
-	})
-
-	for _, tab in ipairs({ v294, v295, v296, v297, v298, v299, v300 }) do
-		tab.rf = KiraWin:CreateTab(tab.name, 4483362458)
-	end
-
-	v294.card, v294.scroll = v294, v294
-	v295.card, v295.scroll = v295, v295
-	v296.card, v296.scroll = v296, v296
-	v297.card, v297.scroll = v297, v297
-	v298.card, v298.scroll = v298, v298
-	v299.card, v299.scroll = v299, v299
-	v300.card, v300.scroll = v300, v300
-
-	u68 = function(x) end
-	u69 = function(x, y) end
-	u70 = function(v)
-		pcall(function()
-			if v then KiraRayfield:Show() else KiraRayfield:Hide() end
-		end)
-	end
-	u71 = function(t)
-		pcall(function()
-			KiraWin:SetTheme(t == "Light" and "Light" or "Dark")
-		end)
-	end
-	u323 = function()
-		pcall(function() KiraWin:Destroy() end)
-		for _, d in ipairs(dt2) do pcall(d) end
-	end
-
-	-- 6 parms shim layer: v263 section, v281 toggle, v282 slider, v287 dropdown, v288 input, v289 button, v290 keybind, v293 paragraph
-	local function v263(tab, s) addSection(tab, s) end
-	local function v281(tab, key, title, desc, default, extra) return addToggle(tab, key, title, desc, default, extra) end
-	local function v282(tab, key, title, desc, mn, mx, cur, suffix) return addSlider(tab, key, title, desc, mn, mx, cur, suffix) end
-	local function v287(tab, key, title, desc, options, cur, multi) return addDropdown(tab, key, title, desc, options, cur, multi) end
-	local function v288(tab, key, title, desc, ph, cur) return addInput(tab, key, title, desc, ph, cur) end
-	local function v289(tab, key, title, desc, btn, fn, instant) return addButton(tab, key, title, desc, btn, fn, instant) end
-	local function v290(tab, key, title, desc, cur) return addKeybind(tab, key, title, desc, cur) end
-	local function v293(tab, k, v) addLabel(tab, k, v) end
-	local function v291check(pA) return v291(pA) end
-
-	local function v264() end
-	local v85 = function() end
-	local v83 = function() end
-	local v84 = function() end
-	local v82 = function(klass, props, parent)
-		local inst = Instance.new(klass)
-		if props then for k, v in pairs(props) do pcall(function() inst[k] = v end) end end
-		if parent then inst.Parent = parent end
-		return inst
-	end
-	local v1238 = function(k, f)
-		local w = t10[k]
-		if w then w.on = f end
-	end
-
-	local v1102 = function(...) warn("[Kira/ui]", ...) end
-
-
-	-- widget registry / handlers the game logic feeds later
-	local t10Refs = {}
-
-	local function Reg(kind, key)
-		local entry = t10Refs[key] or {}
-		entry.kind = kind
-		entry.key = key
-		entry.status = entry.status or { Text = "", Parent = true, Visible = true }
-		entry.set = entry.set or function(x) t9[key] = x end
-		entry.on = entry.on
-		t10Refs[key] = entry
-		t10[key] = entry
-	end
-
-	local function RF_Win()
-		if KiraWin then return KiraWin end
-		KiraError("boot", "creating window...")
-		KiraWin = KiraRayfield:CreateWindow({
-			Name = "Kira Hub | Steal an Egg",
-			LoadingTitle = "Kira Hub",
-			LoadingSubtitle = "by @kira_scripts.gg",
-			ConfigurationSaving = { Enabled = false },
-			KeySystem = false,
-			ShowText = "Kira Hub",
-			ToggleUIKeybind = t1.OpenBind
-		})
-		local icons = { About = 4483362458, ["Auto Steal"] = 4483362458, Plot = 4483362458, Serverhop = 4483362458, Misc = 4483362458, Webhook = 4483362458, Settings = 4483362458 }
-		for _, tab in ipairs({ v294, v295, v296, v297, v298, v299, v300 }) do
-			tab.rf = KiraWin:CreateTab(tab.name, icons[tab.name] or 4483362458)
-		end
-		-- force visible on start: Rayfield always parents its frame to CoreGui under "Rayfield"
-		task.defer(function()
-			local tries = 0
-			while tries < 30 do
-				task.wait(0.1)
-				local ok, err = pcall(function()
-					local coreGui = game:GetService("CoreGui")
-					local win = coreGui:FindFirstChild("Rayfield")
-					if win then
-						for _, d in ipairs(win:GetDescendants()) do
-							if d:IsA("GuiObject") then d.Visible = true end
-						end
-					end
-				end)
-				if ok then break end
-				tries += 1
-			end
-			-- last-resort: v113.Visible true (the ScreenGui we made)
-			v113.Visible = true
-		end)
-		KiraError("boot", "window created: " .. tostring(KiraWin ~= nil))
-		return KiraWin
-	end
-
-	-- late-bound widget makers proxy into real RF once window exists
-	local function laterTab(tab)
-		tab = tab or {}
-		if tab.rf then return tab.rf end
-		KiraError("boot", "calling RF_Win")
-	RF_Win()
-	KiraError("boot", "RF_Win returned — janela deve estar visivel")
-		return tab.rf
-	end
-
-
--- === Kira->Rayfield shim: config/events layer (logic-preserving) ===
+--[[ Config layer (logic-preserving) ]]
 local function v270()
-	for k, v in pairs(t10) do
-		if v and v.kind == "input" then
-			if type(t9[k]) == "string" then end
-		end
-	end
 	local t82 = {}
 	for k, v in pairs(t9) do
 		if not t81[k] and (k ~= "HookUrl" or t9.ExportUrl) then
@@ -991,13 +298,14 @@ local function v270()
 			elseif tv == "table" then
 				t82[k] = v
 			else
-				local ok, result = pcall(function() return v.Name end)
-				if ok and type(result) == "string" then t82[k] = result end
+				local ok, res = pcall(function() return v.Name end)
+				if ok and type(res) == "string" then t82[k] = res end
 			end
 		end
 	end
 	return t82
 end
+
 local function v271(p58, p59)
 	if type(p58) ~= "string" or p58 == "" then return false end
 	if type(makefolder) == "function" then pcall(makefolder, "Kira") end
@@ -1009,15 +317,15 @@ local function v271(p58, p59)
 	if not ok then v269("write fail", p58, tostring(result)) return false end
 	return true
 end
-function v272(p60)
+
+local function v272(p60)
 	if u265 and not p60 then return end
-	if not writefile then v269("writefile missing") return end
+	if not writefile then return end
 	local ok, result = pcall(function() return HttpService:JSONEncode((v270())) end)
-	if not ok or type(result) ~= "string" then v269("encode fail", tostring(result)) return end
-	if not v271(("Kira/" .. v26(t1.Game)) .. "/cache/" .. v26(LocalPlayer and LocalPlayer.Name or "Player") .. "-config.json", result) then
-		v271(("Kira/" .. v26(t1.Game)) .. "/cache/" .. str .. "-config.json", result)
-	end
+	if not ok or type(result) ~= "string" then return end
+	v271(("Kira/" .. v26(t1.Game)) .. "/cache/" .. v26(LocalPlayer.Name or "Player") .. "-config.json", result)
 end
+
 local function v273(p61, p62)
 	local w = t10[p61]
 	if w and (w.kind == "keybind" and type(p62) == "string") then
@@ -1027,10 +335,11 @@ local function v273(p61, p62)
 	if p61 == "Theme" and (p62 == "Dusk" or p62 == "dusk") then return "Dark" end
 	return p62
 end
-function v274(p63, p64)
+
+local function v274(p63, p64)
 	if type(p63) ~= "table" then return end
 	u265 = true
-	local ok, result = pcall(function()
+	pcall(function()
 		if p63.NeverTraps == true then p63.AntiTrap = true end
 		p63.NeverTraps = nil
 		p63.RarityZones = nil
@@ -1044,7 +353,7 @@ function v274(p63, p64)
 				local v1282 = t10[k]
 				if v1282 and v1282.set then
 					pcall(v1282.set, v1281)
-					if not p64 and v1282.on and v1282.kind ~= "slider" and k ~= "Flight" and k ~= "CfgPreset" then
+					if p64 and v1282.on and v1282.kind ~= "slider" and k ~= "Flight" and k ~= "CfgPreset" then
 						pcall(v1282.on, t9[k])
 					end
 				else
@@ -1054,8 +363,8 @@ function v274(p63, p64)
 		end
 	end)
 	u265 = false
-	if not ok then v269("apply fail", tostring(result)) end
 end
+
 local function v275(p61)
 	if type(p61) ~= "string" or p61 == "" or not readfile then return end
 	local ok, result = pcall(readfile, p61)
@@ -1064,6 +373,7 @@ local function v275(p61)
 		if ok2 and type(result2) == "table" then return result2, p61 end
 	end
 end
+
 local function v276()
 	local t83 = { "default" }
 	local t84 = { default = true }
@@ -1075,10 +385,6 @@ local function v276()
 				if v631 and not t84[v631] then t84[v631] = true t83[#t83 + 1] = v631 end
 			end
 		end
-	elseif type(isfile) == "function" then
-		local v632 = tostring(t9.CfgPreset or ""):gsub("^%s+", ""):gsub("%s+$", "")
-		local v633 = if v632 ~= "" then v26(v632) else "default"
-		if v633 ~= "default" and not t84[v633] then t83[#t83 + 1] = v633 end
 	end
 	table.sort(t83, function(a, b)
 		if a == "default" then return true end
@@ -1087,452 +393,421 @@ local function v276()
 	end)
 	return t83
 end
-function v277()
+
+local function v277()
 	local CfgPreset = t10.CfgPreset
 	if not CfgPreset or not CfgPreset.options then return end
 	local v635 = v276()
-	for i = #CfgPreset.options, 1, -1 do CfgPreset.options[i] = nil end
-	for i = 1, #v635 do CfgPreset.options[i] = v635[i] end
-	local v638 = tostring(t9.CfgPreset or ""):gsub("^%s+", ""):gsub("%s+$", "")
-	local v639 = if v638 ~= "" then v26(v638) else "default"
-	local v640 = false
-	for i = 1, #v635 do
-		if v639 == v635[i] then v640 = true break end
-	end
-	if not v640 then v639 = "default" t9.CfgPreset = v639 end
-	if CfgPreset.set then pcall(CfgPreset.set, v639) return end
-	if CfgPreset.refresh then pcall(CfgPreset.refresh) end
+	CfgPreset.options = v635
+	if CfgPreset.set then pcall(CfgPreset.set, tostring(t9.CfgPreset or "default")) end
 end
-function v278(p68)
+
+local function v278(p68)
 	local v643 = tostring(p68 or ""):gsub("^%s+", ""):gsub("%s+$", "")
 	local v644 = if v643 ~= "" then v26(v643) else "default"
 	local ok, result = pcall(function() return HttpService:JSONEncode((v270())) end)
-	if not ok or type(result) ~= "string" then v269("named encode fail", tostring(result)) return false end
+	if not ok or type(result) ~= "string" then return false end
 	local dir = ("Kira/" .. v26(t1.Game)) .. "/configs"
 	if not v271(dir .. "/" .. v644 .. ".json", result) then return false end
 	t9.CfgPreset = v644
 	v277()
-	v269("saved named", v644)
 	return true
 end
-function v279(p69, p70)
+
+local function v279(p69, p70)
 	local v652 = tostring(p69 or ""):gsub("^%s+", ""):gsub("%s+$", "")
 	local v653 = if v652 ~= "" then v26(v652) else "default"
-	local v657, v658 = v275((("Kira/" .. v26(t1.Game)) .. "/configs") .. "/" .. v653 .. ".json")
-	if not v657 then v269("no named config", v653) return false end
+	local v657 = v275(("Kira/" .. v26(t1.Game)) .. "/configs/" .. v653 .. ".json")
+	if not v657 then return false end
 	v274(v657, p70)
 	t9.Flight = false
 	if t10.Flight and t10.Flight.set then pcall(t10.Flight.set, false) end
 	t9.CfgPreset = v653
-	u71(t9.Theme or "Dark")
 	v272(true)
-	v269("loaded named", v658)
 	return true
 end
-function v280(p71)
-	if not readfile then v269("readfile missing") return false end
-	local v661, v662 = v275(("Kira/" .. v26(t1.Game)) .. "/cache/" .. v26(LocalPlayer and LocalPlayer.Name or "Player") .. "-config.json")
+
+local function v280(p71)
+	if not readfile then return false end
+	local v661 = v275(("Kira/" .. v26(t1.Game)) .. "/cache/" .. v26(LocalPlayer.Name or "Player") .. "-config.json")
 	if not v661 then
-		v661, v662 = v275(("Kira/" .. v26(t1.Game)) .. "/cache/" .. str .. "-config.json")
+		v661 = v275(("Kira/" .. v26(t1.Game)) .. "/cache/" .. str .. "-config.json")
 	end
 	if not v661 then
-		v661, v662 = v275(("Kira/" .. v26(t1.Game)) .. "/configs/default.json")
+		v661 = v275(("Kira/" .. v26(t1.Game)) .. "/configs/default.json")
 	end
-	if not v661 then
-		local t85 = {
-			("Kira/" .. v26(t1.Game)) .. "/config.json",
-			"Kira/config.json",
-			"Kira/" .. t1.Game .. "/config.json",
-			("Kira/" .. v26(t1.Game)) .. "/Kira.json",
-			"Kira/Kira.json",
-			"Kira.json"
-		}
-		for i = 1, #t85 do
-			v661, v662 = v275(t85[i])
-			if v661 then break end
-		end
-	end
-	if not v661 then v277() return false end
+	if not v661 then return false end
 	v274(v661, p71)
 	t9.Flight = false
 	if t10.Flight and t10.Flight.set then pcall(t10.Flight.set, false) end
-	u71(t9.Theme or "Dark")
-	if t9.StartMin then u70(false) end
-	for k, v in pairs(t10) do
-		if v and v.set and t9[k] ~= nil then
-			if v.kind == "toggle" then pcall(v.set, t9[k] == true)
-			elseif v.kind == "choice" or v.kind == "dropdown" or v.kind == "input" or v.kind == "slider" then pcall(v.set, t9[k]) end
-		end
-	end
-	if u66 then u69(u66, v250.Text) end
-	v277()
-	if v662 ~= ("Kira/" .. v26(t1.Game)) .. "/cache/" .. v26(LocalPlayer and LocalPlayer.Name or "Player") .. "-config.json" then
-		v272(true)
-	end
-	v269("loaded", v662)
 	return true
 end
 
+--[[ Window + Tabs ]]
+KiraMsg("boot", "creating window...")
+local ok, err = pcall(function()
+	KiraWin = KiraRayfield:CreateWindow({
+		Name = "Kira Hub | Steal an Egg",
+		LoadingTitle = "Kira Hub",
+		LoadingSubtitle = "by @kira_scripts.gg",
+		ConfigurationSaving = { Enabled = false },
+		KeySystem = false
+	})
+end)
+if not ok then
+	KiraMsg("FATAL", "CreateWindow: " .. tostring(err):sub(1, 80))
+	return
+end
+KiraMsg("boot", "window created!")
 
-	u68 = function(pageName)
-		-- navigate Rayfield to that tab
-		for _, tab in ipairs({ v294, v295, v296, v297, v298, v299, v300 }) do
-			if tab.name == pageName and tab.rf then
-				pcall(function() tab.rf:Select() end)
-				return
-			end
+local v294 = { name = "About" }
+local v295 = { name = "Auto Steal" }
+local v296 = { name = "Plot" }
+local v297 = { name = "Serverhop" }
+local v298 = { name = "Misc" }
+local v299 = { name = "Webhook" }
+local v300 = { name = "Settings" }
+
+for _, tab in ipairs({ v294, v295, v296, v297, v298, v299, v300 }) do
+	pcall(function()
+		tab.rf = KiraWin:CreateTab(tab.name, 4483362458)
+	end)
+end
+
+local u68 = function(pageName)
+	for _, tab in ipairs({ v294, v295, v296, v297, v298, v299, v300 }) do
+		if tab.name == pageName and tab.rf then
+			pcall(function() tab.rf:Select() end)
+			return
 		end
 	end
-	u69 = function(...) end
-	u70 = function(v)
-		task.spawn(function()
-			pcall(function()
-				local coreGui = game:GetService("CoreGui")
-				local win = coreGui:FindFirstChild("Rayfield")
-				if win then
-					for _, d in ipairs(win:GetDescendants()) do
-						if d:IsA("GuiObject") then d.Visible = v end
-					end
-				end
-			end)
-		end)
-	end
-	u71 = function(name)
-		pcall(function() KiraWin:SetTheme(name or "Dark") end)
-	end
-	u323 = function() pcall(function() KiraWin:Destroy() end) end
-	u44 = function() end
-
-	local v1102 = function(...) warn("[Kira/ui]", ...) end
-
-	-- widget makers; each mirrors original signature, with Rayfield under the hood.
-	local function v259(_p42, _p43) -- tab lookup shim: returns table with scroll/card/n/items
-		return { name = _p42, desc = _p43, scroll = nil, card = nil, n = 0, items = {} }
-	end
-	local function v261() end
-	local function v264() end
-	local function v263(tab, s)
-		pcall(function() if tab.rf then tab.rf:CreateSection(s) end end)
-	end
-	local function v262() end
-	local function v281(tab, key, title, desc, def, extra)
-		Reg("toggle", key); t9[key] = def and true or false
-		pcall(function()
-			if not tab.rf then return end
-			tab.rf:CreateToggle({
-				Name = title or key,
-				CurrentValue = def and true or false,
-				Flag = key,
-				Callback = function(v)
-					t9[key] = v
-					local w = t10[key]
-					if w and w.on then pcall(w.on, v) end
-					pcall(v272)
-				end
-			})
-		end)
-	end
-	local function v282(tab, key, title, desc, mn, mx, cur, suffix)
-		Reg("slider", key); t9[key] = cur
-		pcall(function()
-			if not tab.rf then return end
-			tab.rf:CreateSlider({
-				Name = title or key,
-				Range = { mn, mx },
-				Increment = 1,
-				Suffix = suffix or "",
-				CurrentValue = cur,
-				Flag = key,
-				Callback = function(v)
-					t9[key] = v
-					local w = t10[key]
-					if w and w.on then pcall(w.on, v) end
-					pcall(v272)
-				end
-			})
-		end)
-	end
-	local function v287(tab, key, title, desc, options, cur, multi)
-		Reg("dropdown", key); t10[key].options = options
-		if multi then t9[key] = (cur or options) else t9[key] = (cur or options[1]) end
-		pcall(function()
-			if not tab.rf then return end
-			tab.rf:CreateDropdown({
-				Name = title or key,
-				Options = options,
-				CurrentOption = multi and (cur or options) or (cur or options[1]),
-				MultipleOptions = multi and true or false,
-				Flag = key,
-				Callback = function(v)
-					t9[key] = v
-					local w = t10[key]
-					if w and w.on then pcall(w.on, v) end
-					pcall(v272)
-				end
-			})
-		end)
-	end
-	local function v288(tab, key, title, desc, ph, cur)
-		Reg("input", key); t9[key] = cur or ""
-		local w = t10[key]
-		w.box = { Text = t9[key] }
-		pcall(function()
-			if not tab.rf then return end
-			tab.rf:CreateInput({
-				Name = title or key,
-				PlaceholderText = ph or "",
-				RemoveTextAfterFocusLost = false,
-				Flag = key,
-				Callback = function(t)
-					t9[key] = t
-					w.box.Text = t
-					if w.on then pcall(w.on, t) end
-					pcall(v272)
-				end
-			})
-		end)
-	end
-	local function v289(tab, key, title, desc, btn, fn)
-		Reg("button", key)
-		local w = t10[key]
-		w.on = fn
-		pcall(function()
-			if not tab.rf then return end
-			tab.rf:CreateButton({
-				Name = title or key,
-				Callback = function()
-					if fn then pcall(fn) end
-				end
-			})
-		end)
-	end
-	local function v290(tab, key, title, desc, cur)
-		Reg("keybind", key); t9[key] = cur
-		pcall(function()
-			if not tab.rf then return end
-			tab.rf:CreateKeybind({
-				Name = title or key,
-				CurrentKeybind = cur and cur.Name or "RightShift",
-				HoldToInteract = false,
-				Flag = key,
-				Callback = function(k)
-					local ok, ec = pcall(function()
-						if typeof(k) == "EnumItem" then return k end
-						if type(k) == "string" and Enum.KeyCode[k] then return Enum.KeyCode[k] end
-						return cur
-					end)
-					if not ok then ec = cur end
-					t9[key] = ec
-					local w = t10[key]
-					if w and w.on then pcall(w.on, ec) end
-					pcall(v272)
-				end
-			})
-		end)
-	end
-	local function v293(tab, k, v)
-		pcall(function() if tab.rf then tab.rf:CreateParagraph({ Title = tostring(k), Content = tostring(v or "") }) end end)
-	end
-	local function v1238(key, fn)
-		local w = t10[key]
-		if w then w.on = fn end
-	end
-
-
-	-- widget declarations for all tabs, mirroring analise.lua but in Rayfield primitives
-	local t5_ = {"Forest", "Desert", "Lake", "Jungle", "Snow", "Volcano", "Prehistoric", "Cosmic", "Abyss Ocean", "Cherry Blossom"}
-	local t6_ = {"Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Cosmic", "Secret", "Eternal", "Divine", "Titan"}
-	local t7_ = {"Golden", "Rainbow", "Galaxy", "Crystal", "Bloom"}
-
-	local v294 = { name = "About", desc = "Kira Hub", items = {}, n = 0 }
-	local v295 = { name = "Auto Steal", desc = "targeting", items = {}, n = 0 }
-	local v296 = { name = "Plot", desc = "eggs/pets/upgrades", items = {}, n = 0 }
-	local v297 = { name = "Serverhop", desc = "auto hop", items = {}, n = 0 }
-	local v298 = { name = "Misc", desc = "esp, defence, flight", items = {}, n = 0 }
-	local v299 = { name = "Webhook", desc = "outbound", items = {}, n = 0 }
-	local v300 = { name = "Settings", desc = "window/config", items = {}, n = 0 }
-
-	RF_Win()
-
-	-- About
-	v263(v294, "About")
-	v293(v294, "Kira Hub", "Steal an Egg auto-farm")
-	v263(v294, "Links")
-	v289(v294, "CopyDiscord", "Discord", nil, "Copy", function()
-		if setclipboard then pcall(setclipboard, v292()) end
-	end)
-	if v291(t1.Website) then
-		v289(v294, "CopySite", "Website", nil, "Copy", function()
-			if setclipboard then pcall(setclipboard, t1.Website) end
-		end)
-	end
-	v263(v294, "Credits")
-	v293(v294, "Made by", t1.Author or t1.Title)
-	if v291(t1.Credits) then v293(v294, "With", t1.Credits) end
-	if v291(t1.Support) then v293(v294, "Support", t1.Support) end
-	v263(v294, "Disclaimer")
-	v293(v294, "Not official", "Not affiliated with " .. (t1.Game or "this game") .. ". Use at your own risk.")
-
-	-- Auto Steal
-	v263(v295, "Auto steal")
-	v281(v295, "AutoSteal", "Auto steal", "idle · took 0 · lost 0 · re-grabbed 0", false, { flag = "StealTravel", options = { "Speed", "Flight" } })
-	v287(v295, "StealTravel", "Travel mode", "", { "Speed", "Flight" }, "Speed", false)
-	v282(v295, "StealSpeed", "Travel speed", "Studs/s — can pullback if too high", 50, 1300, 300, " studs/s")
-	v263(v295, "Targeting")
-	v287(v295, "StealMode", "What to take", "Filters being used below", { "Best value", "Egg type filter", "Gen ($/s) snipe" }, "Best value", false)
-	v288(v295, "GenSnipeFloor", "Egg ($/s) snipe", "What the pet will pay", "any · e.g. 100m", "")
-	v263(v295, "Where to look")
-	v287(v295, "Areas", "Areas", "which zones to steal from", t5_, { unpack(t5_) }, true)
-	v263(v295, "What qualifies")
-	v281(v295, "UseRarity", "Egg type filter", "off = any egg type counts", false)
-	v287(v295, "Rarities", "Egg types", "an egg counts if it is one of these", t6_, { unpack(t6_) }, true)
-	v281(v295, "UseMutation", "Use mutation filter", "off = mutated or not, both fine", false)
-	v287(v295, "Mutations", "Mutations", "an egg counts if it carries one of these", t7_, { unpack(t7_) }, true)
-	v288(v295, "MinWeight", "Minimum weight (Kg)", "the same Kg the game shows — blank for any", "any", "")
-	v263(v295, "Event")
-	v281(v295, "AutoEvent", "Auto Hungry Monster", "after filters: grab infested, equip, feed", false)
-	v288(v295, "EventKeepGen", "Don't feed if egg makes ($/s)", "keeps high-pay eggs — blank = feed any", "feed any · e.g. 5m", "")
-
-	-- Plot
-	v263(v296, "Eggs & pets")
-	v281(v296, "AutoPlaceEggs", "Auto place eggs", "idle · placed 0 · hatched 0", false)
-	v287(v296, "NeverPlaceRarity", "Never place rarer", "Keeps better eggs in inventory", { "Place all", unpack(t6_) }, "Place all", false)
-	v288(v296, "PlaceMinGen", "Only place eggs worth ($/s)", "pen fills with the best first — blank for any", "any · e.g. 1.5m", "")
-	v281(v296, "AutoHatch", "Auto hatch", "hatches every egg the moment its timer is up", false)
-	v281(v296, "EquipBest", "Auto place best pets", "uses the game's own equip-best", false)
-	v263(v296, "Upgrades")
-	v281(v296, "UpgTrails", "Auto upgrade trails", "idle · bought 0 · sold 0", false)
-	v281(v296, "UpgTreadmill", "Auto upgrade treadmill", "buys the next treadmill when affordable", false)
-	v281(v296, "UpgPen", "Auto upgrade pen", "more room for pets", false)
-	v288(v296, "KeepMoney", "Keep this much money", "never spend below this — blank to spend freely", "spend it all · e.g. 500m", "")
-	v263(v296, "Selling")
-	v289(v296, "SellPreview", "Preview what will sell", "opens preview under stats panel", "Preview", function() end)
-	v288(v296, "SellUnderGen", "Sell anything earning under ($/s)", "blank = nothing sells", "nothing sells · e.g. 250k", "")
-	v281(v296, "AutoSellPets", "Auto sell pets", "equips then sells at stall · worst first · only below floor", false)
-	v281(v296, "AutoSellEggs", "Auto sell eggs", "equips then sells spare eggs only — plot eggs stay", false)
-	v263(v296, "Treadmill training")
-	v281(v296, "AutoTreadmill", "Auto treadmill", "not training · 0/s · earned 0 this session", false)
-	v281(v296, "TrainWhenIdle", "Train when nothing to steal", "only when Auto Steal is off", true)
-	v282(v296, "ReadyEarly", "Get ready early", "step earlier to steal", 0, 15, 4, "s before reset")
-
-	-- Serverhop
-	v263(v297, "Auto hop")
-	v281(v297, "AutoHop", "Auto hop", "off · 0 hops this session", false)
-	v263(v297, "Leave when")
-	v288(v297, "HopIdle", "No steal for (seconds)", "Auto Steal on, nothing banked. Min 5. Blank = off.", "off · 90", "")
-	v288(v297, "HopAfter", "Been here (minutes)", "leave after this long. Min 1. Blank = off.", "off · 20", "")
-	v263(v297, "Leave now")
-	v289(v297, "HopNow", "Hop now", "one hop. Auto hop can stay off.", "Hop", function() end)
-	v263(v297, "Which servers")
-	v282(v297, "HopPages", "Pages to fetch", "3 is enough. more pages is slower.", 1, 10, 3, " pages")
-	v281(v297, "HopSkipFull", "Skip full servers", "a full server just dumps you back here", true)
-	v287(v297, "HopPlayers", "Players", "Lowest = emptier, Highest = fuller", { "Lowest", "Highest" }, "Lowest", false)
-
-
-	-- Misc
-	v263(v298, "Eggs on the map")
-	v281(v298, "EggESP", "Egg ESP", nil, false)
-	v287(v298, "ESPFilter", "Show ESP on", nil, { "All eggs", "Eggs matching my filters", "Stolen target only" }, "All eggs", false)
-	v281(v298, "ESPBeam", "Beam to current target", "line to the egg auto steal picked", false)
-	v263(v298, "Eggs on your plot")
-	v281(v298, "PlotESP", "Plot egg ESP", "payout and hatch timer — green when ready", false)
-	v263(v298, "Stats")
-	v281(v298, "StatsPanel", "Show stats panel", "draggable: money, income, pen, best pet, best egg, speed, session", false)
-	v281(v298, "ClaimIndex", "Auto claim index", "redeems every completed index entry in one sweep", false)
-	v263(v298, "Defence")
-	v281(v298, "AntiTrap", "Anti trap", "Disables traps", false)
-	v281(v298, "AntiMob", "Anti ragdoll", "guards and other players' bats cannot flop or knock you; your bat still swings", false)
-	v263(v298, "Bat")
-	v281(v298, "BatAura", "Bat aura", "swings at any player in range — Auto Steal also equips the bat and chases whoever took your egg", false)
-	v263(v298, "Walking")
-	v281(v298, "BypassSpeed", "Bypass speed", "off = normal walk. on = Bypass cap. Auto steal uses Travel speed only while going to an egg, not while looking", false)
-	v282(v298, "BypassCap", "Bypass speed cap", "studs per second while walking with bypass on", 150, 1300, 880, " studs/s")
-	v263(v298, "Flight")
-	v281(v298, "Flight", "Flight", "WASD to fly, Space up, Left Ctrl down — holds altitude when you let go", false)
-	v282(v298, "FlightSpeed", "Flight speed", "studs per second while flying", 150, 1300, 880, " studs/s")
-	v290(v298, "FlightBind", "Flight keybind", "toggles flight without opening the window", t1.FlightBind)
-	v263(v298, "Performance")
-	v281(v298, "Optimizer", "Game optimizer", "lowest gfx: shadows, particles, lights, post-fx, terrain water — off restores", false)
-	v282(v298, "FPSCap", "FPS cap", "0 - no fps cap", 0, 240, 0, "")
-
-	-- Webhook
-	v263(v299, "Connection")
-	v281(v299, "HookEnabled", "Send outbound", "", false)
-	v288(v299, "HookUrl", "Endpoint URL", "paste a URL — never committed", "https://", "")
-	v289(v299, "HookTest", "Test send", "posts a sample embed to the URL above", "Send", function() end)
-	v263(v299, "What to send")
-	v281(v299, "HookStolen", "Egg stolen", "icon, $/s, rarity, mutations, where it came from", true)
-	v281(v299, "HookHatched", "Egg hatched", "icon, $/s, rarity, weight", true)
-	v281(v299, "HookSold", "Sold pets or eggs", "icon and what it was earning", false)
-	v281(v299, "HookRewards", "Rewards claimed", "index redeem count", false)
-	v263(v299, "How much noise")
-	v288(v299, "HookMinGen", "Only eggs earning over ($/s)", "stolen and hatched — blank for everything", "everything · e.g. 50m", "")
-	v287(v299, "HookRarityFloor", "Rarity floor", "stolen and hatched below this rarity are skipped", { "Any", unpack(t6_) }, "Any", false)
-	v281(v299, "SessionDigest", "Session recap", "every 10 minutes — stolen, lost, hatched, sold, cash. not a steal ping", false)
-	v263(v299, "The message")
-	v287(v299, "HookPing", "Ping", "", { "No ping", "Here", "User id" }, "No ping", false)
-	v288(v299, "HookUserId", "User id", "optional", "0", "")
-	v281(v299, "HookUsername", "Show my Roblox name and headshot", "", false)
-	v281(v299, "ExportUrl", "Let exported configs carry the URL", "off by default", false)
-
-	-- Settings
-	v263(v300, "Appearance")
-	v281(v300, "PhoneUI", "Phone layout", "compact hub for phones / emulators — leave off on PC", u42)
-	v282(v300, "UIScale", "UI scale", "zooms the hub — does not crush the layout", 75, 125, 100, "%")
-	v287(v300, "Theme", "Theme", "dark or light — mark swaps with the theme", { "Dark", "Light" }, "Dark", false)
-	v263(v300, "Keybinds")
-	v290(v300, "OpenBind", "Open / close", "press this any time to show or hide", t1.OpenBind)
-	v290(v300, "FlightBind2", "Toggle flight", "same bind as the movement page", t1.FlightBind)
-	v281(v300, "StartMin", "Start minimised", nil, false)
-	v263(v300, "Config")
-	v287(v300, "CfgPreset", "Load config", "new accounts use default", { "default" }, "default", false)
-	v288(v300, "CfgSaveName", "Save as", "blank = default", "name · or leave blank", "")
-	v289(v300, "SaveCfgAs", "Save config", "writes Kira/.../configs/<name>.json", "Save", function()
-		v278(t9.CfgSaveName)
-	end)
-	v289(v300, "ExportCfg", "Export settings", "copies config to clipboard", "Copy", function()
-		v272()
-		local ok, result = pcall(function()
-			return HttpService:JSONEncode((v270()))
-		end)
-		if not ok then return end
-		if setclipboard then pcall(setclipboard, result) end
-	end)
-	v288(v300, "ImportPaste", "Import settings", "load config from clipboard", "paste, then press Import", "")
-	v289(v300, "ImportCfg", "Import", nil, "Import", function()
-		local ImportPaste = t9.ImportPaste
-		if type(ImportPaste) ~= "string" or ImportPaste == "" then return end
-		local ok, result = pcall(function()
-			return HttpService:JSONDecode(ImportPaste)
-		end)
-		if not ok or type(result) ~= "table" then return end
-		v274(result, true)
-		u71(t9.Theme or "Dark")
-		v272(true)
-	end)
-	v263(v300, "Window")
-	v289(v300, "ResetWin", "Reset position & size", "window and orb back to the middle at default size", "Reset", function()
-		if t10.UIScale and t10.UIScale.set then t10.UIScale.set(100) end
-	end)
-
-	-- wire late handlers (Theme, FlightBind2, CfgPreset, UIScale, PhoneUI...)
-	if t10.Theme then t10.Theme.on = function(p) u71(p) end end
-	if t10.FlightBind2 then t10.FlightBind2.on = function(p) t9.FlightBind = p end end
-	if t10.CfgPreset then t10.CfgPreset.on = function(p) v279(p, true) v277() end end
-	if t10.UIScale then t10.UIScale.on = function(p) v108.Scale = p / 100 end end
-	if t10.PhoneUI then t10.PhoneUI.on = function(p) if u44 then pcall(u44) end end end
-
-
-	-- boot: load saved config
-	task.defer(function()
-		local ok, err = pcall(v280, true)
-		if not ok then warn("[Kira/cfg boot]", err) end
-	end)
-
-	-- Rayfield opens the window itself (notification -> then Main window visible).
-	-- For Delta: Rayfield uses CoreGui; nothing else needed here.
-
 end
+local u69 = function() end
+local u70 = function(v)
+	pcall(function()
+		local cg = game:GetService("CoreGui")
+		local rf = cg:FindFirstChild("Rayfield")
+		if rf then
+			for _, d in ipairs(rf:GetDescendants()) do
+				if d:IsA("GuiObject") then d.Visible = v end
+			end
+		end
+	end)
+end
+local u71 = function(name)
+	pcall(function()
+		if KiraWin.SetTheme then KiraWin:SetTheme(name == "Light" and "Light" or "Dark") end
+	end)
+end
+local u323 = function()
+	pcall(function() KiraWin:Destroy() end)
+end
+
+--[[ Widget shims — 1:1 with original signatures ]]
+local function Reg(kind, key)
+	local w = t10[key] or {}
+	w.kind = kind
+	w.key = key
+	if not w.status then w.status = { Text = "", Parent = true, Visible = true } end
+	if not w.set then w.set = function(x) t9[key] = x end end
+	t10[key] = w
+	return w
+end
+
+local function v263(tab, s)
+	pcall(function() if tab.rf then tab.rf:CreateSection(s) end end)
+end
+local function v281(tab, key, title, desc, def, extra)
+	local w = Reg("toggle", key)
+	t9[key] = def and true or false
+	pcall(function()
+		tab.rf:CreateToggle({
+			Name = title or key,
+			CurrentValue = def and true or false,
+			Flag = key,
+			Callback = function(v)
+				t9[key] = v
+				if w.on then pcall(w.on, v) end
+				pcall(v272)
+			end
+		})
+	end)
+end
+local function v282(tab, key, title, desc, mn, mx, cur, suffix)
+	local w = Reg("slider", key)
+	t9[key] = cur
+	pcall(function()
+		tab.rf:CreateSlider({
+			Name = title or key,
+			Range = { mn, mx },
+			Increment = 1,
+			Suffix = suffix or "",
+			CurrentValue = cur,
+			Flag = key,
+			Callback = function(v)
+				t9[key] = v
+				if w.on then pcall(w.on, v) end
+				pcall(v272)
+			end
+		})
+	end)
+end
+local function v287(tab, key, title, desc, options, cur, multi)
+	local w = Reg("dropdown", key)
+	w.options = options
+	if multi then t9[key] = cur or { unpack(options) } else t9[key] = cur or options[1] end
+	pcall(function()
+		tab.rf:CreateDropdown({
+			Name = title or key,
+			Options = options,
+			CurrentOption = multi and (cur or options) or (cur or options[1]),
+			MultipleOptions = multi and true or false,
+			Flag = key,
+			Callback = function(v)
+				t9[key] = v
+				if w.on then pcall(w.on, v) end
+				pcall(v272)
+			end
+		})
+	end)
+end
+local function v288(tab, key, title, desc, ph, cur)
+	local w = Reg("input", key)
+	t9[key] = cur or ""
+	w.box = { Text = t9[key] }
+	pcall(function()
+		tab.rf:CreateInput({
+			Name = title or key,
+			PlaceholderText = ph or "",
+			RemoveTextAfterFocusLost = false,
+			Flag = key,
+			Callback = function(tx)
+				t9[key] = tx
+				w.box.Text = tx
+				if w.on then pcall(w.on, tx) end
+				pcall(v272)
+			end
+		})
+	end)
+end
+local function v289(tab, key, title, desc, btn, fn)
+	local w = Reg("button", key)
+	w.on = fn
+	pcall(function()
+		tab.rf:CreateButton({
+			Name = title or key,
+			Callback = function()
+				if fn then pcall(fn) end
+			end
+		})
+	end)
+end
+local function v290(tab, key, title, desc, cur)
+	local w = Reg("keybind", key)
+	t9[key] = cur
+	pcall(function()
+		tab.rf:CreateKeybind({
+			Name = title or key,
+			CurrentKeybind = cur and cur.Name or "RightShift",
+			HoldToInteract = false,
+			Flag = key,
+			Callback = function(k)
+				if type(k) == "userdata" then
+					t9[key] = k
+				else
+					local nm = tostring(k)
+					local ok, e = pcall(function() return Enum.KeyCode[nm] end)
+					if ok and e then t9[key] = e end
+				end
+				if w.on then pcall(w.on, t9[key]) end
+				pcall(v272)
+			end
+		})
+	end)
+end
+local function v293(tab, k, v)
+	pcall(function()
+		if tab.rf then tab.rf:CreateParagraph({ Title = tostring(k), Content = tostring(v or "") }) end
+	end)
+end
+local function v291(pA) return type(pA) == "string" and pA:match("%S") ~= nil end
+local function v292()
+	local d = t1.Discord or ""
+	if d:find("discord%%.") or d:find("http", 1, true) then return d end
+	return "discord.gg/" .. d
+end
+
+KiraMsg("boot", "declaring widgets...")
+
+local t5 = {"Forest","Desert","Lake","Jungle","Snow","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom"}
+local t6 = {"Common","Uncommon","Rare","Epic","Legendary","Mythic","Cosmic","Secret","Eternal","Divine","Titan"}
+local t7 = {"Golden","Rainbow","Galaxy","Crystal","Bloom"}
+
+-- About
+v263(v294, "About")
+v293(v294, "Kira Hub", "Steal an Egg auto-farm — Rayfield port")
+v263(v294, "Links")
+v289(v294, "CopyDiscord", "Discord", nil, "Copy", function()
+	if setclipboard then pcall(setclipboard, v292()) end
+end)
+if v291(t1.Website) then
+	v289(v294, "CopySite", "Website", nil, "Copy", function()
+		if setclipboard then pcall(setclipboard, t1.Website) end
+	end)
+end
+v263(v294, "Credits")
+v293(v294, "Made by", t1.Author or t1.Title)
+if v291(t1.Credits) then v293(v294, "With", t1.Credits) end
+if v291(t1.Support) then v293(v294, "Support", t1.Support) end
+v263(v294, "Disclaimer")
+v293(v294, "Not official", "Not affiliated with " .. (t1.Game or "this game") .. ". Use at your own risk.")
+
+-- Auto Steal
+v263(v295, "Auto steal")
+v281(v295, "AutoSteal", "Auto steal", "idle · took 0 · lost 0", false)
+v287(v295, "StealTravel", "Travel mode", "", {"Speed","Flight"}, "Speed", false)
+v282(v295, "StealSpeed", "Travel speed", "Studs/s", 50, 1300, 300, " studs/s")
+v263(v295, "Targeting")
+v287(v295, "StealMode", "What to take", "", {"Best value","Egg type filter","Gen ($/s) snipe"}, "Best value", false)
+v288(v295, "GenSnipeFloor", "Egg ($/s) snipe", "", "any · e.g. 100m", "")
+v263(v295, "Where to look")
+v287(v295, "Areas", "Areas", "", t5, { unpack(t5) }, true)
+v263(v295, "What qualifies")
+v281(v295, "UseRarity", "Egg type filter", "", false)
+v287(v295, "Rarities", "Egg types", "", t6, { unpack(t6) }, true)
+v281(v295, "UseMutation", "Use mutation filter", "", false)
+v287(v295, "Mutations", "Mutations", "", t7, { unpack(t7) }, true)
+v288(v295, "MinWeight", "Minimum weight (Kg)", "", "any", "")
+v263(v295, "Event")
+v281(v295, "AutoEvent", "Auto Hungry Monster", "", false)
+v288(v295, "EventKeepGen", "Don't feed if $/s >", "", "feed any", "")
+
+-- Plot
+v263(v296, "Eggs & pets")
+v281(v296, "AutoPlaceEggs", "Auto place eggs", "", false)
+v287(v296, "NeverPlaceRarity", "Never place rarer", "", {"Place all", unpack(t6)}, "Place all", false)
+v288(v296, "PlaceMinGen", "Only place eggs $/s", "", "any", "")
+v281(v296, "AutoHatch", "Auto hatch", "", false)
+v281(v296, "EquipBest", "Auto place best pets", "", false)
+v263(v296, "Upgrades")
+v281(v296, "UpgTrails", "Auto upgrade trails", "", false)
+v281(v296, "UpgTreadmill", "Auto upgrade treadmill", "", false)
+v281(v296, "UpgPen", "Auto upgrade pen", "", false)
+v288(v296, "KeepMoney", "Keep this much money", "", "spend it all", "")
+v263(v296, "Selling")
+v289(v296, "SellPreview", "Preview what will sell", "", "Preview", function() end)
+v288(v296, "SellUnderGen", "Sell anything under $/s", "", "nothing sells", "")
+v281(v296, "AutoSellPets", "Auto sell pets", "", false)
+v281(v296, "AutoSellEggs", "Auto sell eggs", "", false)
+v263(v296, "Treadmill")
+v281(v296, "AutoTreadmill", "Auto treadmill", "", false)
+v281(v296, "TrainWhenIdle", "Train when nothing to steal", "", true)
+v282(v296, "ReadyEarly", "Get ready early", "", 0, 15, 4, "s before reset")
+
+-- Serverhop
+v263(v297, "Auto hop")
+v281(v297, "AutoHop", "Auto hop", "", false)
+v263(v297, "Leave when")
+v288(v297, "HopIdle", "No steal for (seconds)", "", "off · 90", "")
+v288(v297, "HopAfter", "Been here (minutes)", "", "off · 20", "")
+v263(v297, "Leave now")
+v289(v297, "HopNow", "Hop now", "", "Hop", function() end)
+v263(v297, "Which servers")
+v282(v297, "HopPages", "Pages to fetch", "", 1, 10, 3, " pages")
+v281(v297, "HopSkipFull", "Skip full servers", "", true)
+v287(v297, "HopPlayers", "Players", "", {"Lowest","Highest"}, "Lowest", false)
+
+-- Misc
+v263(v298, "Eggs on the map")
+v281(v298, "EggESP", "Egg ESP", "", false)
+v287(v298, "ESPFilter", "Show ESP on", "", {"All eggs","Eggs matching my filters","Stolen target only"}, "All eggs", false)
+v281(v298, "ESPBeam", "Beam to current target", "", false)
+v263(v298, "Eggs on your plot")
+v281(v298, "PlotESP", "Plot egg ESP", "", false)
+v263(v298, "Stats")
+v281(v298, "StatsPanel", "Show stats panel", "", false)
+v281(v298, "ClaimIndex", "Auto claim index", "", false)
+v263(v298, "Defence")
+v281(v298, "AntiTrap", "Anti trap", "", false)
+v281(v298, "AntiMob", "Anti ragdoll", "", false)
+v263(v298, "Bat")
+v281(v298, "BatAura", "Bat aura", "", false)
+v263(v298, "Walking")
+v281(v298, "BypassSpeed", "Bypass speed", "", false)
+v282(v298, "BypassCap", "Bypass speed cap", "", 150, 1300, 880, " studs/s")
+v263(v298, "Flight")
+v281(v298, "Flight", "Flight", "WASD/Space/Ctrl", false)
+v282(v298, "FlightSpeed", "Flight speed", "", 150, 1300, 880, " studs/s")
+v290(v298, "FlightBind", "Flight keybind", "", t1.FlightBind)
+v263(v298, "Performance")
+v281(v298, "Optimizer", "Game optimizer", "", false)
+v282(v298, "FPSCap", "FPS cap", "0 = no cap", 0, 240, 0, "")
+
+-- Webhook
+v263(v299, "Connection")
+v281(v299, "HookEnabled", "Send outbound", "", false)
+v288(v299, "HookUrl", "Endpoint URL", "", "https://", "")
+v289(v299, "HookTest", "Test send", "", "Send", function() end)
+v263(v299, "What to send")
+v281(v299, "HookStolen", "Egg stolen", "", true)
+v281(v299, "HookHatched", "Egg hatched", "", true)
+v281(v299, "HookSold", "Sold pets/eggs", "", false)
+v281(v299, "HookRewards", "Rewards claimed", "", false)
+v263(v299, "Filters")
+v288(v299, "HookMinGen", "Only over $/s", "", "everything", "")
+v287(v299, "HookRarityFloor", "Rarity floor", "", {"Any", unpack(t6)}, "Any", false)
+v281(v299, "SessionDigest", "Session recap", "", false)
+v263(v299, "Message")
+v287(v299, "HookPing", "Ping", "", {"No ping","Here","User id"}, "No ping", false)
+v288(v299, "HookUserId", "User id", "", "0", "")
+v281(v299, "HookUsername", "Show my name & headshot", "", false)
+v281(v299, "ExportUrl", "Exported configs carry URL", "", false)
+
+-- Settings
+v263(v300, "Appearance")
+v281(v300, "PhoneUI", "Phone layout", "", u42)
+v282(v300, "UIScale", "UI scale", "", 75, 125, 100, "%")
+v287(v300, "Theme", "Theme", "", {"Dark","Light"}, "Dark", false)
+v263(v300, "Keybinds")
+v290(v300, "OpenBind", "Open / close", "", t1.OpenBind)
+v290(v300, "FlightBind2", "Toggle flight", "", t1.FlightBind)
+v281(v300, "StartMin", "Start minimised", "", false)
+v263(v300, "Config")
+v287(v300, "CfgPreset", "Load config", "", {"default"}, "default", false)
+v288(v300, "CfgSaveName", "Save as", "", "name · or blank", "")
+v289(v300, "SaveCfgAs", "Save config", "", "Save", function() v278(t9.CfgSaveName) end)
+v289(v300, "ExportCfg", "Export settings", "", "Copy", function()
+	v272()
+	local ok, result = pcall(function() return HttpService:JSONEncode((v270())) end)
+	if not ok then return end
+	if setclipboard then pcall(setclipboard, result) end
+end)
+v288(v300, "ImportPaste", "Import settings", "", "paste, then press Import", "")
+v289(v300, "ImportCfg", "Import", "", "Import", function()
+	local ImportPaste = t9.ImportPaste
+	if type(ImportPaste) ~= "string" or ImportPaste == "" then return end
+	local ok, result = pcall(function() return HttpService:JSONDecode(ImportPaste) end)
+	if not ok or type(result) ~= "table" then return end
+	v274(result, true)
+	u71(t9.Theme or "Dark")
+	v272(true)
+end)
+v263(v300, "Window")
+v289(v300, "ResetWin", "Reset position & size", "", "Reset", function()
+	if t10.UIScale and t10.UIScale.set then t10.UIScale.set(100) end
+end)
+
+-- Late-wire handlers (logic depends on these paths)
+if t10.Theme then t10.Theme.on = function(p) u71(p) end end
+if t10.FlightBind2 then t10.FlightBind2.on = function(p) t9.FlightBind = p end end
+if t10.CfgPreset then t10.CfgPreset.on = function(p) v279(p, true) v277() end end
+if t10.UIScale then t10.UIScale.on = function(p) v108.Scale = p / 100 end end
+if t10.PhoneUI then t10.PhoneUI.on = function(p) if u44 then pcall(u44) end end end
+
+KiraMsg("boot", "loading saved config...")
+task.defer(function() pcall(v280, true) end)
+
+KiraMsg("boot", "READY — janela Rayfield ativa")
 
 local v324 = v50()
 local v325 = v51()
@@ -4486,7 +3761,7 @@ end;
             local g2875
             local n20
             local n19
-            for match, v2864 in p240:gsub("\\/", "/"):gmatch([[\"targetId\":(%d+).-?\"imageUrl\":\"(https://[^\"]+)\"]]) do
+            for match, v2864 in p240:gsub("\\/", "/"):gmatch("\"targetId\":(%d+).-?\"imageUrl\":\"(https://[^\"]+)\"") do
                 local str3 = tostring(match or "")
                 local v2866 = v1787(v2864)
 
@@ -4674,7 +3949,7 @@ end;
                 v1792(v4616, t172)
 
                 if #p244 == 1 and type(v4617) == "string" then
-                    local v4618 = v4617:gsub("\\/", "/"):match([[\"imageUrl\":\"(https://[^\"]+)\"]])
+                    local v4618 = v4617:gsub("\\/", "/"):match("\"imageUrl\":\"(https://[^\"]+)\"")
 
                     if not v4618 then
                         return t172
@@ -5394,7 +4669,7 @@ end;
 
             if p271 and p271.bytes then
                 local v2996 = "Kira" .. tostring(math.floor(os.clock() * 1000000)) .. tostring(math.random(100000, 999999))
-                local v2997 = "--" .. v2996 .. "\r\n" .. "Content-Disposition: form-data; name="payload_json"" .. "\r\n" .. "\r\n" .. result29 .. "\r\n" .. "--" .. v2996 .. "\r\n" .. "Content-Disposition: form-data; name="files[0]"; filename="" .. (p271.name or "icon.png") .. """ .. "\r\n" .. "Content-Type: " .. (p271.mime or "image/png") .. "\r\n" .. "Content-Transfer-Encoding: binary" .. "\r\n" .. "\r\n" .. p271.bytes .. "\r\n" .. "--" .. v2996 .. "--\r\n"
+                local v2997 = "--" .. v2996 .. "\r\n" .. "Content-Disposition: form-data; name=\"payload_json\"" .. "\r\n" .. "\r\n" .. result29 .. "\r\n" .. "--" .. v2996 .. "\r\n" .. "Content-Disposition: form-data; name=\"files[0]\"; filename=\"" .. (p271.name or "icon.png") .. "\"" .. "\r\n" .. "Content-Type: " .. (p271.mime or "image/png") .. "\r\n" .. "Content-Transfer-Encoding: binary" .. "\r\n" .. "\r\n" .. p271.bytes .. "\r\n" .. "--" .. v2996 .. "--\r\n"
 
                 if not string.find(p269, "wait=", 1, true) then
                     p269 ..= (not string.find(p269, "?", 1, true) and "?" or "&") .. "wait=true"
@@ -5417,7 +4692,7 @@ end;
                     if type(v3000) ~= "string" or v3000 == "" then
                         v3001 = false
                     else
-                        local num = tonumber(v3000:match(""code"%s*:%s*(%d+)"))
+                        local num = tonumber(v3000:match("\"code\"%s*:%s*(%d+)"))
 
                         v3001 = num ~= nil and num >= 10000
                     end
