@@ -503,6 +503,18 @@ do
 -- Kira -> Rayfield shim (UI layer only)
 -- logic below 5950 left untouched
 -- ============================================
+-- visible error reporter so mobile users see what's failing
+local function KiraError(tag, msg)
+	pcall(function()
+		game:GetService("StarterGui"):SetCore("SendNotification", {
+			Title = "Kira Hub",
+			Text = tostring(tag) .. ": " .. tostring(msg),
+			Duration = 8
+		})
+	end)
+	warn("[Kira]", tag, msg)
+end
+
 do
 
 
@@ -529,15 +541,15 @@ end
 
 local KiraRayfield
 do
-	warn("[Kira] loading Rayfield...")
+	KiraError("boot", "loading Rayfield...")
 	local srcs = {
 		"https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua",
 		"https://sirius.menu/rayfield"
 	}
 	for _, u in ipairs(srcs) do
-		warn("[Kira] try:", u)
+		KiraError("fetch-try", u)
 		local ok, body = pcall(game.HttpGet, game, u)
-		warn("[Kira] fetch:", ok, type(body), ok and type(body) == "string" and #body or "n/a")
+		KiraError("fetch", tostring(ok) .. " " .. type(body) .. " " .. tostring(ok and type(body)=="string" and #body or "n/a"))
 		if ok and type(body) == "string" and #body > 1000 then
 			local ok2, libOrErr = pcall(function()
 				local fn = loadstring(body)
@@ -546,18 +558,18 @@ do
 				if ok3 then return lib end
 				return nil, lib
 			end)
-			warn("[Kira] exec:", ok2, type(libOrErr))
+			KiraError("exec", tostring(ok2) .. " " .. type(libOrErr))
 			if ok2 and type(libOrErr) == "table" then
 				KiraRayfield = libOrErr
 				break
 			elseif not ok2 then
-				warn("[Kira] loadstring/err:", libOrErr)
+				KiraError("loadstr-err", tostring(libOrErr))
 			end
 		end
 	end
 end
-if not KiraRayfield then warn("[Kira] Rayfield FAILED to load") return end
-warn("[Kira] Rayfield loaded OK")
+if not KiraRayfield then KiraError("FATAL", "Rayfield failed to load") return end
+KiraError("boot", "Rayfield loaded OK")
 LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
 	pcall(function()
@@ -914,7 +926,7 @@ do
 
 	local function RF_Win()
 		if KiraWin then return KiraWin end
-		warn("[Kira] creating window...")
+		KiraError("boot", "creating window...")
 		KiraWin = KiraRayfield:CreateWindow({
 			Name = "Kira Hub | Steal an Egg",
 			LoadingTitle = "Kira Hub",
@@ -948,7 +960,7 @@ do
 			-- last-resort: v113.Visible true (the ScreenGui we made)
 			v113.Visible = true
 		end)
-		warn("[Kira] window created:", KiraWin ~= nil)
+		KiraError("boot", "window created: " .. tostring(KiraWin ~= nil))
 		return KiraWin
 	end
 
@@ -956,9 +968,9 @@ do
 	local function laterTab(tab)
 		tab = tab or {}
 		if tab.rf then return tab.rf end
-		warn("[Kira] calling RF_Win")
+		KiraError("boot", "calling RF_Win")
 	RF_Win()
-	warn("[Kira] RF_Win returned")
+	KiraError("boot", "RF_Win returned — janela deve estar visivel")
 		return tab.rf
 	end
 
