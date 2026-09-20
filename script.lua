@@ -102,34 +102,36 @@ do
         LocalPlayer = Players.LocalPlayer
     end
 
-    local v18 = os.clock() + 60
+    task.spawn(function()
+        local v18 = os.clock() + 60
 
-    while LocalPlayer and v18 > os.clock() do
-        local v20, v21
+        while LocalPlayer and v18 > os.clock() do
+            local v20, v21
 
-        do
-            local Character = LocalPlayer.Character
+            do
+                local Character = LocalPlayer.Character
 
-            v20 = Character and Character:FindFirstChildOfClass("Humanoid")
-            v21 = Character and Character:FindFirstChild("HumanoidRootPart")
-        end
-
-        if v20 and v21 and v20.Health > 0 then
-            task.wait(0.45)
-
-            local Character = LocalPlayer.Character
-            local v23 = Character and Character:FindFirstChildOfClass("Humanoid")
-            local v24 = Character and Character:FindFirstChild("HumanoidRootPart")
-
-            if not v23 or not v24 or not (v23.Health > 0) then
-                continue
+                v20 = Character and Character:FindFirstChildOfClass("Humanoid")
+                v21 = Character and Character:FindFirstChild("HumanoidRootPart")
             end
 
-            break
-        end
+            if v20 and v21 and v20.Health > 0 then
+                task.wait(0.45)
 
-        task.wait(0.1)
-    end
+                local Character = LocalPlayer.Character
+                local v23 = Character and Character:FindFirstChildOfClass("Humanoid")
+                local v24 = Character and Character:FindFirstChild("HumanoidRootPart")
+
+                if not v23 or not v24 or not (v23.Health > 0) then
+                    continue
+                end
+
+                break
+            end
+
+            task.wait(0.1)
+        end
+    end)
 end
 -- ============================================
 -- Kira Hub | Steal an Egg — Rayfield port
@@ -218,7 +220,7 @@ local sources = {
 	"https://sirius.menu/rayfield"
 }
 for _, u in ipairs(sources) do
-	local ok, body = pcall(game.HttpGet, game, u)
+	local ok, body = pcall(function() return game:HttpGet(u) end)
 	if ok and type(body) == "string" and #body > 1000 then
 		local ok2, lib = pcall(function()
 			local fn = loadstring(body)
